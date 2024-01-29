@@ -1,6 +1,6 @@
 package mod.chloeprime.tacinteractkey.util;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
 
 public class InheritanceChecker<T> {
 
@@ -8,7 +8,7 @@ public class InheritanceChecker<T> {
         this.givenBaseType = baseType;
         this.methodName = methodName;
         this.paramTypes = paramTypes;
-        this.realBaseType = getRealBaseType(baseType, methodName, paramTypes);
+        this.realBaseType = getDeclareClass(baseType, methodName, paramTypes);
     }
 
     public Class<T> getBaseType() {
@@ -23,26 +23,32 @@ public class InheritanceChecker<T> {
     private final String methodName;
     private final Class<?>[] paramTypes;
     private final Class<? super T> realBaseType;
-    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
     private final ClassValue<Boolean> CACHE = new ClassValue<>() {
         @Override
         protected Boolean computeValue(Class<?> type) {
-            try {
-                var handle = LOOKUP.unreflect(type.getMethod(methodName, paramTypes));
-                return !realBaseType.equals(LOOKUP.revealDirect(handle).getDeclaringClass());
-            } catch (NoSuchMethodException | IllegalAccessException e) {
-                return false;
-            }
+            return !realBaseType.equals(getDeclareClass(type, methodName, paramTypes));
         }
     };
 
     @SuppressWarnings("unchecked")
-    private static <T> Class<? super T> getRealBaseType(Class<T> type, String method, Class<?>... paramTypes) {
+    private static <T> Class<? super T> getDeclareClass(Class<T> type, String methodName, Class<?>... paramTypes) {
         try {
-            var handle = LOOKUP.unreflect(type.getMethod(method, paramTypes));
-            return (Class<? super T>) LOOKUP.revealDirect(handle).getDeclaringClass();
-        } catch (IllegalAccessException | NoSuchMethodException ex) {
+            return (Class<? super T>) getDeclaredMethod(type, methodName, paramTypes).getDeclaringClass();
+        } catch (NoSuchMethodException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private static Method getDeclaredMethod(Class<?> type, String methodName, Class<?>... paramTypes) throws NoSuchMethodException {
+        Method method;
+        try {
+            method = type.getMethod(methodName, paramTypes);
+        } catch (NoSuchMethodException ignored) {
+            method = type.getDeclaredMethod(methodName, paramTypes);
+            if (!method.trySetAccessible()) {
+                throw new IllegalArgumentException("Inaccessible Method");
+            }
+        }
+        return method;
     }
 }

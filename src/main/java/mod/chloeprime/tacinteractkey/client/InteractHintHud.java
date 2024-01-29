@@ -13,6 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -25,6 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.client.gui.IIngameOverlay;
 import net.minecraftforge.client.gui.OverlayRegistry;
+import net.minecraftforge.common.IExtensibleEnum;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
@@ -34,6 +37,26 @@ import java.util.Optional;
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class InteractHintHud {
+    public enum Type implements IExtensibleEnum {
+        INTERACT(new TranslatableComponent("interact.hint.type.interact")),
+        DRIVE_TANK(new TranslatableComponent("interact.hint.type.drive.tank"));
+
+        @SuppressWarnings("unused")
+        public static Type create(String name, Component text) {
+            throw new IllegalStateException("Enum not extended");
+        }
+
+        public Component getDisplayText() {
+            return text;
+        }
+
+        Type(Component text) {
+            this.text = text;
+        }
+
+        private final Component text;
+    }
+
     private static final Minecraft MC = Minecraft.getInstance();
 
     public static final IIngameOverlay INTERACT_HINT_ELEMENT = OverlayRegistry.registerOverlayAbove(ForgeIngameGui.CROSSHAIR_ELEMENT, "Interact Hint", (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
@@ -57,9 +80,20 @@ public class InteractHintHud {
                     .orElse(false);
             case ENTITY -> {
                 var hitEntity = ((EntityHitResult) hit).getEntity();
-                yield ENTITY_INHERITANCE_CHECKER.isInherited(hitEntity.getClass());
+                yield hitEntity instanceof Mob hitMob
+                        ? MOB_INHERITANCE_CHECKER.isInherited(hitMob.getClass())
+                        : ENTITY_INHERITANCE_CHECKER.isInherited(hitEntity.getClass());
             }
         };
+    }
+
+    private static Type getInteractType(@Nullable HitResult hitResult) {
+        if (!(hitResult instanceof EntityHitResult entityHit)) {
+            return Type.INTERACT;
+        }
+        return entityHit.getEntity() instanceof Pig pig && pig.isSaddled()
+                ? Type.DRIVE_TANK
+                : Type.INTERACT;
     }
 
     private static final InheritanceChecker<Block> BLOCK_INHERITANCE_CHECKER = new InheritanceChecker<>(
@@ -71,6 +105,12 @@ public class InteractHintHud {
     private static final InheritanceChecker<Entity> ENTITY_INHERITANCE_CHECKER = new InheritanceChecker<>(
             Entity.class,
             ObfuscationReflectionHelper.remapName(INameMappingService.Domain.METHOD, "m_6096_"),
+            Player.class, InteractionHand.class
+    );
+
+    private static final InheritanceChecker<Mob> MOB_INHERITANCE_CHECKER = new InheritanceChecker<>(
+            Mob.class,
+            ObfuscationReflectionHelper.remapName(INameMappingService.Domain.METHOD, "m_6071_"),
             Player.class, InteractionHand.class
     );
 
@@ -93,10 +133,11 @@ public class InteractHintHud {
         RenderSystem.defaultBlendFunc();
 
         var font = MC.font;
+        var type = getInteractType(MC.hitResult);
         var text = new TranslatableComponent(
                 "interact.hint",
                 firstLetterToUpperCase(MC.options.keySwapOffhand.getTranslatedKeyMessage().getString()),
-                HINT_TEXT_ARG1
+                type.getDisplayText()
         ).withStyle(ChatFormatting.WHITE);
 
         ((GuiAccessor)gui).invokeDrawBackdrop(pStack, font, -4, font.width(text), 0xFFFFFFFF);
@@ -104,8 +145,6 @@ public class InteractHintHud {
         RenderSystem.disableBlend();
         pStack.popPose();
     }
-
-    private static final Component HINT_TEXT_ARG1 = new TranslatableComponent("interact.hint.type.interact");
 
     private static String firstLetterToUpperCase(String s) {
         if (s.isEmpty()) {

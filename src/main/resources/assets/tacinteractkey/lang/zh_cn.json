@@ -1,4 +1,5 @@
 {
   "interact.hint": "[%s] %s",
-  "interact.hint.type.interact": "互动"
+  "interact.hint.type.interact": "互动",
+  "interact.hint.type.drive.tank": "进入坦克"
 }
