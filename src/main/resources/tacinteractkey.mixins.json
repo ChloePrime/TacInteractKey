@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mod.chloeprime.tacinteractkey.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "tacinteractkey.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "client.MixinMinecraft",
+    "client.MixinTacAimingHandler"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
