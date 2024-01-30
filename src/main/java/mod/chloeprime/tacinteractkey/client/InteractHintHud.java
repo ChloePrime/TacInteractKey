@@ -2,6 +2,7 @@ package mod.chloeprime.tacinteractkey.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.tac.guns.client.handler.ReloadHandler;
 import com.tac.guns.item.transition.TimelessGunItem;
 import cpw.mods.modlauncher.api.INameMappingService;
 import mod.chloeprime.tacinteractkey.mixin.client.GuiAccessor;
@@ -118,7 +119,7 @@ public class InteractHintHud {
         boolean isHoldingGun = Optional.ofNullable(MC.player)
                 .map(pl -> pl.getMainHandItem().getItem() instanceof TimelessGunItem)
                 .orElse(false);
-        if (!isHoldingGun) {
+        if (!isHoldingGun || ReloadHandler.get().isReloading()) {
             return;
         }
 
