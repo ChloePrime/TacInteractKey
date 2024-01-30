@@ -142,7 +142,7 @@ public class InteractHintHud {
         var type = getInteractType(MC.hitResult);
         var text = new TranslatableComponent(
                 "interact.hint",
-                firstLetterToUpperCase(MC.options.keySwapOffhand.getTranslatedKeyMessage().getString()),
+                firstLetterToUpperCase(TacInteractKeyClient.KEY_GUN_INTERACT.getTranslatedKeyMessage().getString()),
                 type.getDisplayText()
         ).withStyle(ChatFormatting.WHITE);
 

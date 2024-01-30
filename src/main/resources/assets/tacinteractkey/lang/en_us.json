@@ -1,4 +1,5 @@
 {
+  "key.tacinteractkey.interact": "Interact when holding gun",
   "interact.hint": "[%s] %s",
   "interact.hint.type.interact": "Interact",
   "interact.hint.type.drive.tank": "Drive Tank"
