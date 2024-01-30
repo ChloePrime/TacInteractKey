@@ -6,6 +6,7 @@ import com.tac.guns.client.handler.ReloadHandler;
 import com.tac.guns.item.transition.TimelessGunItem;
 import cpw.mods.modlauncher.api.INameMappingService;
 import mod.chloeprime.tacinteractkey.mixin.client.GuiAccessor;
+import mod.chloeprime.tacinteractkey.mixin.client.StairBlockAccessor;
 import mod.chloeprime.tacinteractkey.util.InheritanceChecker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -60,6 +61,7 @@ public class InteractHintHud {
 
     private static final Minecraft MC = Minecraft.getInstance();
 
+    @SuppressWarnings("unused")
     public static final IIngameOverlay INTERACT_HINT_ELEMENT = OverlayRegistry.registerOverlayAbove(ForgeIngameGui.CROSSHAIR_ELEMENT, "Interact Hint", (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
         if (!MC.options.hideGui)
         {
@@ -75,8 +77,10 @@ public class InteractHintHud {
             case MISS -> false;
             case BLOCK -> Optional.ofNullable(MC.level)
                     .map(level -> {
-                        var state = MC.level.getBlockState(((BlockHitResult) hit).getBlockPos());
-                        return BLOCK_INHERITANCE_CHECKER.isInherited(state.getBlock().getClass());
+                        var block = MC.level.getBlockState(((BlockHitResult) hit).getBlockPos()).getBlock();
+                        return block instanceof StairBlockAccessor stair
+                                ? BLOCK_INHERITANCE_CHECKER.isInherited(stair.invokeGetModelBlock().getClass())
+                                : BLOCK_INHERITANCE_CHECKER.isInherited(block.getClass());
                     })
                     .orElse(false);
             case ENTITY -> {
@@ -115,6 +119,7 @@ public class InteractHintHud {
             Player.class, InteractionHand.class
     );
 
+    @SuppressWarnings("unused")
     private static void renderInteractHint(ForgeIngameGui gui, int screenW, int screenH, float partialTick, PoseStack pStack) {
         boolean isHoldingGun = Optional.ofNullable(MC.player)
                 .map(pl -> pl.getMainHandItem().getItem() instanceof TimelessGunItem)
