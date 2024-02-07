@@ -63,7 +63,7 @@ public class InteractHintHud {
 
     @SuppressWarnings("unused")
     public static final IIngameOverlay INTERACT_HINT_ELEMENT = OverlayRegistry.registerOverlayAbove(ForgeIngameGui.CROSSHAIR_ELEMENT, "Interact Hint", (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
-        if (!MC.options.hideGui)
+        if (!MC.options.hideGui && !ClientConfig.DISABLE_HUD_TEXT.get())
         {
             renderInteractHint(gui, screenWidth, screenHeight, partialTick, poseStack);
         }
