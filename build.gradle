@@ -26,7 +26,7 @@ base {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
 }
 
 minecraft {
@@ -149,8 +149,8 @@ dependencies {
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf('_:framework:0.4.2-1.18.2')
-    implementation fg.deobf('_:tac:0.3.10.1-1.18.2')
+    implementation fg.deobf('_:obfuscate:0.6.3-1.16.5')
+    implementation fg.deobf('_:tac:0.3.7-1.16.5')
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

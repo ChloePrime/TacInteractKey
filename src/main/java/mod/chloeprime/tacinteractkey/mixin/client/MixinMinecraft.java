@@ -1,12 +1,12 @@
 package mod.chloeprime.tacinteractkey.mixin.client;
 
 import com.tac.guns.client.handler.ReloadHandler;
-import com.tac.guns.item.transition.TimelessGunItem;
+import com.tac.guns.item.TransitionalTypes.TimelessGunItem;
 import mod.chloeprime.tacinteractkey.TacInteractKey;
 import mod.chloeprime.tacinteractkey.client.TacInteractKeyClient;
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,7 +46,7 @@ public abstract class MixinMinecraft {
         while (TacInteractKeyClient.KEY_GUN_INTERACT.consumeClick()) {}
     }
 
-    @Shadow @Final public Options options;
-    @Shadow @Nullable public LocalPlayer player;
+    @Shadow @Final public GameSettings options;
+    @Shadow @Nullable public ClientPlayerEntity player;
     @Shadow protected abstract void startUseItem();
 }

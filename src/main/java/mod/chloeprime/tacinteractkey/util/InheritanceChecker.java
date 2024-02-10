@@ -23,7 +23,7 @@ public class InheritanceChecker<T> {
     private final String methodName;
     private final Class<?>[] paramTypes;
     private final Class<? super T> realBaseType;
-    private final ClassValue<Boolean> CACHE = new ClassValue<>() {
+    private final ClassValue<Boolean> CACHE = new ClassValue<Boolean>() {
         @Override
         protected Boolean computeValue(Class<?> type) {
             return !realBaseType.equals(getDeclareClass(type, methodName, paramTypes));
