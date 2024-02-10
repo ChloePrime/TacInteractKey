@@ -81,11 +81,14 @@ minecraft {
             // "REGISTRYDUMP": For getting the contents of all registries.
             property 'forge.logging.markers', 'REGISTRIES'
 
-
             // Recommended logging level for the console
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
+
+//            property 'mixin.env.disableRefMap', 'true'
+//            property 'mixin.env.remapRefMap', 'true'
+//            property 'mixin.env.refMapRemappingFile', 'build/createSrgToMcp/output.srg'
 
             mods {
                 "${mod_id}" {
@@ -133,6 +136,9 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 repositories {
     // Put repositories for dependencies here
     // ForgeGradle automatically adds the Forge maven and Maven Central for you
+    maven {
+        url = "https://www.cursemaven.com"
+    }
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
@@ -150,7 +156,9 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     implementation fg.deobf('_:obfuscate:0.6.3-1.16.5')
-    implementation fg.deobf('_:tac:0.3.7-1.16.5')
+    implementation fg.deobf('_:curios:1.16.5-4.1.0.0')
+    implementation fg.deobf('curse.maven:tac0.3.7-491264:4657037')
+//    implementation fg.deobf('curse.maven:tac0.3.7-491264:5054005')
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

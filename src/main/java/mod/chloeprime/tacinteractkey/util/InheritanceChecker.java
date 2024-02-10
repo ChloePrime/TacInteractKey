@@ -45,9 +45,10 @@ public class InheritanceChecker<T> {
             method = type.getMethod(methodName, paramTypes);
         } catch (NoSuchMethodException ignored) {
             method = type.getDeclaredMethod(methodName, paramTypes);
-            if (!method.trySetAccessible()) {
-                throw new IllegalArgumentException("Inaccessible Method");
-            }
+//            if (!method.trySetAccessible()) {
+//                throw new IllegalArgumentException("Inaccessible Method");
+//            }
+            method.setAccessible(true);
         }
         return method;
     }

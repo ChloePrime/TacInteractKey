@@ -2,17 +2,18 @@ package mod.chloeprime.tacinteractkey.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.tac.guns.client.handler.ReloadHandler;
 import com.tac.guns.item.TransitionalTypes.TimelessGunItem;
 import cpw.mods.modlauncher.api.INameMappingService;
 import mod.chloeprime.tacinteractkey.mixin.client.GuiAccessor;
 import mod.chloeprime.tacinteractkey.mixin.client.StairBlockAccessor;
 import mod.chloeprime.tacinteractkey.util.InheritanceChecker;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IngameGui;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.passive.PigEntity;
@@ -26,13 +27,12 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.Dimension;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.gui.ForgeIngameGui;
-import net.minecraftforge.client.gui.IIngameOverlay;
-import net.minecraftforge.client.gui.OverlayRegistry;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.IExtensibleEnum;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
@@ -69,18 +69,18 @@ public class InteractHintHud
 
     private static final Minecraft MC = Minecraft.getInstance();
 
-    @SuppressWarnings("unused")
-    ForgeIngameGui
-    public static final IIngameOverlay INTERACT_HINT_ELEMENT = OverlayRegistry.registerOverlayAbove(
-            ForgeIngameGui.CROSSHAIR_ELEMENT, "Interact Hint",
-            (gui, poseStack, partialTick, screenWidth, screenHeight) ->
-            {
-                if (!MC.options.hideGui && !ClientConfig.DISABLE_HUD_TEXT.get())
-                {
-                    renderInteractHint(gui, screenWidth, screenHeight, partialTick, poseStack);
-                }
-            }
-    );
+    @SubscribeEvent(receiveCanceled = true)
+    public static void onPreCrossHair(RenderGameOverlayEvent.Pre event)
+    {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS && !MC.options.hideGui && !ClientConfig.DISABLE_HUD_TEXT.get())
+            renderInteractHint(
+                    MC.gui,
+                    MC.getWindow().getGuiScaledWidth(),
+                    MC.getWindow().getGuiScaledHeight(),
+                    event.getPartialTicks(),
+                    event.getMatrixStack()
+            );
+    }
 
     public static boolean isInteractable(@Nullable RayTraceResult hit)
     {
@@ -125,26 +125,26 @@ public class InteractHintHud
                 : Type.INTERACT;
     }
 
-    private static final InheritanceChecker<Block> BLOCK_INHERITANCE_CHECKER = new InheritanceChecker<>(
-            Block.class,
-            ObfuscationReflectionHelper.remapName(INameMappingService.Domain.METHOD, "m_6227_"),
-            BlockState.class, Dimension.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockRayTraceResult.class
+    private static final InheritanceChecker<AbstractBlock> BLOCK_INHERITANCE_CHECKER = new InheritanceChecker<>(
+            AbstractBlock.class,
+            ObfuscationReflectionHelper.remapName(INameMappingService.Domain.METHOD, "func_225533_a_"),
+            BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockRayTraceResult.class
     );
 
     private static final InheritanceChecker<Entity> ENTITY_INHERITANCE_CHECKER = new InheritanceChecker<>(
             Entity.class,
-            ObfuscationReflectionHelper.remapName(INameMappingService.Domain.METHOD, "m_6096_"),
+            ObfuscationReflectionHelper.remapName(INameMappingService.Domain.METHOD, "func_184230_a"),
             PlayerEntity.class, Hand.class
     );
 
     private static final InheritanceChecker<MobEntity> MOB_INHERITANCE_CHECKER = new InheritanceChecker<>(
             MobEntity.class,
-            ObfuscationReflectionHelper.remapName(INameMappingService.Domain.METHOD, "m_6071_"),
+            ObfuscationReflectionHelper.remapName(INameMappingService.Domain.METHOD, "func_230254_b_"),
             PlayerEntity.class, Hand.class
     );
 
     @SuppressWarnings("unused")
-    private static void renderInteractHint(ForgeIngameGui gui, int screenW, int screenH, float partialTick, MatrixStack pStack)
+    private static void renderInteractHint(IngameGui gui, int screenW, int screenH, float partialTick, MatrixStack pStack)
     {
         boolean isHoldingGun = Optional.ofNullable(MC.player)
                                        .map(pl -> pl.getMainHandItem().getItem() instanceof TimelessGunItem)
@@ -171,10 +171,11 @@ public class InteractHintHud
                 "interact.hint",
                 firstLetterToUpperCase(TacInteractKeyClient.KEY_GUN_INTERACT.getTranslatedKeyMessage().getString()),
                 type.getDisplayText()
-        ).withStyle(TextFormatting.WHITE);
+        ).withStyle(TextFormatting.GRAY);
+        // WHITE with full alpha is too outstanding
 
-        ((GuiAccessor) gui).invokeDrawBackdrop(pStack, font, -4, font.width(text), 0xFFFFFFFF);
-        font.drawShadow(pStack, text, -font.width(text) / 2F, 10F, 0xFFFFFFFF);
+        ((GuiAccessor) gui).invokeDrawBackdrop(pStack, font, -4, font.width(text), 0xFFFFFFF0);
+        font.drawShadow(pStack, text, -font.width(text) / 2F, 10F, 0xFFFFFFF0);
         RenderSystem.disableBlend();
         pStack.popPose();
     }

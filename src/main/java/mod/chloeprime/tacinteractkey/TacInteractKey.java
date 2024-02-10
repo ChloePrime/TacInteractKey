@@ -11,7 +11,6 @@ import net.minecraftforge.forgespi.Environment;
 
 @Mod("tacinteractkey")
 public class TacInteractKey {
-
     public static boolean isUsingWhenHoldingGun;
 
     public TacInteractKey() {
