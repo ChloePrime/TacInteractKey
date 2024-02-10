@@ -10,11 +10,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = AimingHandler.class, remap = false)
 public class MixinTacAimingHandler {
-    // This Function doesn't exist in TaC 1.16.5
-//    @Inject(method = "onClickInput", at = @At("HEAD"), cancellable = true)
-//    private void inject_onClickInput(InputEvent.ClickInputEvent e, CallbackInfo ci) {
-//        if (TacInteractKey.isUsingWhenHoldingGun) {
-//            ci.cancel();
-//        }
-//    }
+    @Inject(method = "onClickInput", at = @At("HEAD"), cancellable = true)
+    private void inject_onClickInput(InputEvent.ClickInputEvent e, CallbackInfo ci) {
+        if (TacInteractKey.isUsingWhenHoldingGun) {
+            ci.cancel();
+        }
+    }
 }

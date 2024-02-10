@@ -1,7 +1,7 @@
 package mod.chloeprime.tacinteractkey.mixin.client;
 
 import com.tac.guns.client.handler.ReloadHandler;
-import com.tac.guns.item.TransitionalTypes.TimelessGunItem;
+import com.tac.guns.item.transition.TimelessGunItem;
 import mod.chloeprime.tacinteractkey.TacInteractKey;
 import mod.chloeprime.tacinteractkey.client.TacInteractKeyClient;
 import net.minecraft.client.GameSettings;

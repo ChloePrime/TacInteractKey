@@ -46,11 +46,11 @@ description='''${mod_description}'''
    ordering="NONE"
    # Side this dependency is applied on - BOTH, CLIENT, or SERVER
    side="BOTH"# Here's another dependency
-# mandatory depends on TaC 3.7.0
+# mandatory depends on TaC
 [[dependencies.${mod_id}]]
    modId="tac"
    mandatory=true
-   versionRange="[3.7.0, 3.8.0)"
+   versionRange="${tac_version_range}"
    ordering="AFTER"
    side="BOTH"
 [[dependencies.${mod_id}]]

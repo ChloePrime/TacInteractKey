@@ -3,7 +3,7 @@ package mod.chloeprime.tacinteractkey.client;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.tac.guns.client.handler.ReloadHandler;
-import com.tac.guns.item.TransitionalTypes.TimelessGunItem;
+import com.tac.guns.item.transition.TimelessGunItem;
 import cpw.mods.modlauncher.api.INameMappingService;
 import mod.chloeprime.tacinteractkey.mixin.client.GuiAccessor;
 import mod.chloeprime.tacinteractkey.mixin.client.StairBlockAccessor;
@@ -173,6 +173,7 @@ public class InteractHintHud
                 type.getDisplayText()
         ).withStyle(TextFormatting.GRAY);
         // WHITE with full alpha is too outstanding
+        // BTW TaC 0.3.7 won't prevent player's interactions with mobs
 
         ((GuiAccessor) gui).invokeDrawBackdrop(pStack, font, -4, font.width(text), 0xFFFFFFF0);
         font.drawShadow(pStack, text, -font.width(text) / 2F, 10F, 0xFFFFFFF0);
